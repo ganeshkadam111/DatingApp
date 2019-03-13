@@ -19,7 +19,8 @@ namespace DattingApp.API.Controllers
         {
             _dataContext = context;
         }
-        // GET api/values
+
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult>  Get()
         {
