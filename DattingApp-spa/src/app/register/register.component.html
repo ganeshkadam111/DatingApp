@@ -1,13 +1,16 @@
-<form #registerForm="ngForm" (ngSubmit)="register()">
+<form [formGroup]="registerForm" (ngSubmit)="register()">
   <h2 class="text-center text-primary">Sign Up</h2>
   <hr>
 
   <div class="form-group">
-    <input type="text" class="form-control" required name="username" [(ngModel)]="model.username" placeholder="username">
+    <input type="text" class="form-control" formControlName="userName" placeholder="username">
   </div>
 
   <div class="form-group">
-    <input type="password" class="form-control" required name="password" [(ngModel)]="model.password" placeholder="password">
+    <input type="password" class="form-control" formControlName="password" placeholder="password">
+  </div>
+  <div class="form-group">
+    <input type="password" class="form-control" formControlName="confirmPassword" placeholder="Confirm password">
   </div>
 
   <div class="form-group text-center">
@@ -15,3 +18,6 @@
     <button class="btn btn-default" type="button" (click)="cancel()">Cancel</button>
   </div>
 </form>
+
+<p>Form Value: {{registerForm.value | json}}</p>
+<p>Form Value: {{registerForm.status | json}}</p>

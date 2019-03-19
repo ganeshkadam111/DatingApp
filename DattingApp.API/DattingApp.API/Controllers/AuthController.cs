@@ -1,16 +1,15 @@
-﻿using DattingApp.API.Data;
+﻿using AutoMapper;
+using DattingApp.API.Data;
 using DattingApp.API.Dto;
 using DattingApp.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,13 +20,15 @@ namespace DattingApp.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _repo;
+        private readonly IMapper _mapper;
 
         private IConfiguration _config { get; }
 
-        public AuthController(IAuthRepository repo, IConfiguration config)
+        public AuthController(IAuthRepository repo, IConfiguration config, IMapper mapper)
         {
             _repo = repo;
             _config = config;
+            _mapper = mapper;
         }
         
         [HttpPost("register")]
@@ -76,9 +77,12 @@ namespace DattingApp.API.Controllers
             var tokenHndler = new JwtSecurityTokenHandler();
             var token = tokenHndler.CreateToken(tokenDescriptor);
 
+            var user = _mapper.Map<UserForListDto>(userFromRepo);
+
             return Ok(new
             {
-                token = tokenHndler.WriteToken(token)
+                token = tokenHndler.WriteToken(token),
+                user
             });
 
         }
