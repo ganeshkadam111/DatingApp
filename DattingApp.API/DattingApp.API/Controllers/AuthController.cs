@@ -30,37 +30,35 @@ namespace DattingApp.API.Controllers
             _config = config;
             _mapper = mapper;
         }
-        
+
         [HttpPost("register")]
 
-        public async Task<IActionResult> Register(UserForRegistrationDto user)
+        public async Task<IActionResult> Register(UserForRegistrationDto userForRegistrationDto)
         {
-            user.Username = user.Username.ToLower();
+            userForRegistrationDto.Username = userForRegistrationDto.Username.ToLower();
 
-            if (await _repo.UserExists(user.Username))
+            if (await _repo.UserExists(userForRegistrationDto.Username))
                 return BadRequest("User already exist");
 
-            var userToCreate = new User
-            {
-                UserName = user.Username
-            };
+            var userToCreate = _mapper.Map<User>(userForRegistrationDto);
 
-            var createdUser = await _repo.Register(userToCreate, user.Password);
+            var createdUser = await _repo.Register(userToCreate, userForRegistrationDto.Password);
 
-            return StatusCode(201);
+            var userToReturn = _mapper.Map<UserForDetailedDto>(createdUser);
+            return CreatedAtRoute("GetUser", new { controller = "Users", id = createdUser.Id }, userToReturn);
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
-            var userFromRepo =await  _repo.Login(userForLoginDto.UserName, userForLoginDto.Password);
+            var userFromRepo = await _repo.Login(userForLoginDto.UserName, userForLoginDto.Password);
             if (userFromRepo == null)
                 return Unauthorized();
-           
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
-                new Claim(ClaimTypes.Name, userFromRepo.UserName) 
+                new Claim(ClaimTypes.Name, userFromRepo.UserName)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Tokens").Value));
